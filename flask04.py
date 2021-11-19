@@ -10,10 +10,6 @@ from database import db
 
 app = Flask(__name__)  # create an app
 
-notes = {1: {'title': 'First note', 'text': 'This is my first note', 'date': '10-1-2020'},
-         2: {'title': 'Second note', 'text': 'This is my second note', 'date': '10-2-2020'},
-         3: {'title': 'Third note', 'text': 'This is my third note', 'date': '10-3-2020'}
-         }
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flask_note_app.db'
 
@@ -24,43 +20,58 @@ db.init_app(app)
 
 # Setup models
 with app.app_context():
-    db.create_all()   # run under the app context
+    db.create_all()  # run under the app context
 
 # @app.route is a decorator. It gives the function "index" special powers.
 # In this case it makes it so anyone going to "your-url/" makes this function
 # get called. What it returns is what is shown as the web page
 
-
+a_user = db.session.query(User).filter_by(email='ngeorge6@uncc.edu')
 @app.route('/')
 @app.route('/index')
 def index():
-    a_user = {'name': 'Nisha', 'email': 'ngeorge6@uncc.edu'}
+    # get user from database
+    a_user = db.session.query(User).filter_by(email = 'ngeorge6@uncc.edu'}
+
     return render_template("index.html", user=a_user)
 
 
+
+a_user = db.session.query(User).filter_by(email='ngeorge6@uncc.edu')
+my_notes = db.session.query(Note).all()
 @app.route('/notes')
 def get_notes():
-    a_user = {'name': 'Nisha', 'email': 'ngeorge6@uncc.edu'}
-    return render_template('notes.html', notes=notes, user=a_user)
+    #retrieve user from database
+    a_user = db.session.query(User).filter_by(email = 'ngeorge6@uncc.edu'}
+    #retrieve notes from database
+    my_notes = db.session.query(Note).all()
+
+    return render_template('notes.html', notes=my_notes, user=a_user)
 
 
+
+a_user = db.session.query(User).filter_by(email='ngeorge6@uncc.edu')
+my_note = db.session.query(Note).filter_by(id = note_id)
 @app.route('/notes/<note_id>')
 def get_note(note_id):
-    a_user = {'name': 'Nisha', 'email': 'ngeorge6@uncc.edu'}
-    # keep this for later
-    # notes = {1: {'title': 'First note', 'text': 'This is my first note', 'date': '10-1-2020'},
-    #        2: {'title': 'Second note', 'text': 'This is my second note', 'date': '10-2-2020'},
-    #       3: {'title': 'Third note', 'text': 'This is my third note', 'date': '10-3-2020'},
-    #      }
-    return render_template('note.html', note=notes[int(note_id)], user=a_user)
+    #retrieve user from database
+    a_user = db.session.query(User).filter_by(email = 'ngeorge6@uncc.edu'}
+    #retrieve note from database
+    my_note = db.session.query(Note).filter_by(id = note_id)
+
+    return render_template('note.html', note=my_note, user=a_user)
 
 
+
+#"POST" request handling:
+new_record = Note(title, text, today)
+db.sesssion.add(new_record)
+db.session.commit()
+#"GET" request handling
+a_user = db.session.query(User).filter_by(email='ngeorge6@uncc.edu')
 @app.route('/notes/new', methods=['GET', 'POST'])
-def new_note():
-    # Create mock user
-    a_user = {'name': 'Nisha', 'email': 'ngeorge6@uncc.edu'}
-
-    # check method used for request
+def new_note()
+    #check method used for request
     if request.method == 'POST':
         # get title data
         title = request.form['title']
@@ -71,14 +82,15 @@ def new_note():
         today = date.today()
         # format date mm/dd/yyyy
         today = today.strftime("%m-%d-%Y")
-        # get the last ID used and increment by 1
-        id = len(notes) + 1
-        # create new note entry
-        notes[id] = {'title': title, 'text': text, 'date': today}
-        # ready to render response - redirect to notes listing
+        new_record = Note(title, text, today)
+        db.session = add(new_record)
+        db.sessioncommit()
+
         return redirect(url_for('get_notes'))
     else:
         # Get request - show new note form
+        #retrieve user from database
+        a_user = db.session.query(User).filter_by(email = 'ngeorge6@unnc.edu')
         return render_template('new.html', user=a_user)
 
 

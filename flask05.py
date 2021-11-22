@@ -2,6 +2,7 @@
 
 # imports
 import os  # os is used to get environment variables IP & PORT
+import os  # os is used to get environment variables IP & PORT
 from flask import Flask  # Flask is the web app that we will customize
 from flask import render_template
 from flask import request
@@ -12,12 +13,16 @@ from models import User as User
 
 app = Flask(__name__)  # create an app
 
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flask_note_app.db'
+
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+
 #  Bind SQLAlchemy db object to this Flask app
 db.init_app(app)
+
 
 # Setup models
 with app.app_context():
@@ -27,6 +32,7 @@ with app.app_context():
 # @app.route is a decorator. It gives the function "index" special powers.
 # In this case it makes it so anyone going to "your-url/" makes this function
 # get called. What it returns is what is shown as the web page
+
 
 @app.route('/')
 @app.route('/index')
@@ -42,7 +48,6 @@ def get_notes():
     a_user = db.session.query(User).filter_by(email='ngeorge6@uncc.edu').one()
     # retrieve notes from database
     my_notes = db.session.query(Note).all()
-
     return render_template('notes.html', notes=my_notes, user=a_user)
 
 
@@ -50,7 +55,6 @@ def get_notes():
 def get_note(note_id):
     a_user = db.session.query(User).filter_by(email='ngeorge6@uncc.edu').one()
     my_note = db.session.query(Note).filter_by(id=note_id).one()
-
     return render_template('note.html', note=my_note, user=a_user)
 
 
@@ -76,8 +80,20 @@ def new_note():
     else:
         # Get request - show new note form
         # retrieve user from database
-        a_user = db.session.query(User).filter_by(email='ngeorge6@unnc.edu')
+        a_user = db.session.query(User).filter_by(email='ngeorge6@uncc.edu').one()
         return render_template('new.html', user=a_user)
+
+
+@app.route('/notes/edit/<note_id>)')
+def update_note(note_id):
+    # GET request - show new note form to edit the note
+    # retrieve user from database
+    a_user = db.session.query(User).filter_by(email='ngeorge6@uncc.edu').one()
+
+    # retrieve notes from database
+    my_note = db.session.query(Note).filter_by(id=note_id).one()
+
+    return render_template('new.html', note=my_note, user=a_user)
 
 
 app.run(host=os.getenv('IP', '127.0.0.1'), port=int(os.getenv('PORT', 5000)), debug=True)
@@ -88,4 +104,3 @@ app.run(host=os.getenv('IP', '127.0.0.1'), port=int(os.getenv('PORT', 5000)), de
 # Note that we are running with "debug=True", so if you make changes and save it
 # the server will automatically update. This is great for development but is a
 # security risk for production.
-
